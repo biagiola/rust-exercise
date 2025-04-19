@@ -13,26 +13,35 @@ fn tbl_insert_avatar(
     avatar_tbl.insert(id, avatar);
 }
 
-fn read_user_identification(type_name: &str) -> String {
+fn read_user_identification(message: &str, retries: i32) -> String {
     let mut user_input: String = String::new();
     let mut i: i32 = 0;
 
     loop {
-        println!("Please. Enter your {type_name} name");
-        
-        if let Err(message) = stdin().read_line(&mut user_input) {
-            eprintln!("There was an error with the user input. {message:?}");
-        } else {
-            break;
-        };
+        if i >= retries {
+            eprintln!("Too many failed attempts. Exiting...");
+            process::exit(1)
+        }
+        println!("{message} (Attempt {} of {})", i + 1, retries);
+
+
+        user_input.clear(); // just in case
+
+        if let Err(error) = stdin().read_line(&mut user_input) { // I know, very rare scenario
+            eprintln!("There was an error with the user input. {error:?}");
+            i += 1;
+            continue;
+        }
+        break
     }
     user_input.trim().to_string()
 }
 
 fn main() {
-    let input_first_name: String = read_user_identification("first");
-    let input_last_name: String = read_user_identification("last");
-    let input_nick_name: String = read_user_identification("nick");
+    let retries: i32 = 3;
+    let input_first_name: String = read_user_identification("Please enter your first name.", retries);
+    let input_last_name: String = read_user_identification("Please enter your last name.", retries);
+    let input_nick_name: String = read_user_identification("Please enter your nick name.", retries);
 
     // create user
     let david_user: User = User {
