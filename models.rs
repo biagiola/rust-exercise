@@ -29,3 +29,13 @@ pub struct UserAvatar {
     pub avatar_id: u32,
     pub level: u32
 }
+
+// This will be the struct if we want to keep a reference
+// &str insted of cloning using the String heap data type
+// pub struct User<'a> {
+//     pub id: u32,
+//     pub first_name: &'a str,
+//     pub last_name: &'a str,
+//     pub nick_name: &'a str,
+// }
+// this is something about lifetimes to discuss later

@@ -1,58 +1,73 @@
-use std::collections::HashMap;
-mod models;
-mod tables;
-use models::{User, Avatar, AvatarType, UserAvatar};
-use tables::{UserTable, AvatarTable, UserAvatarTable};
+use std::collections::HashMap; // for our pseudo tables
+use std::process;
+use std::io::stdin;
+use models::{User, Avatar, AvatarType, UserAvatar}; // Bring structs/enum
+mod models; // Import our pseudo models
 
-fn main() {
-    // CREATE TABLES
-    let mut user_table = UserTable::new();
-    let mut avatar_table = AvatarTable::new();
-    let mut user_avatar_table = UserAvatarTable::new();
-
-    // create user
-    user_table.insert(
-        1,
-        String::from("David"),
-        String::from("Biagiola"),
-        String::from("Deivi")
-    );
-    
-    // update user
-    user_table.update(
-        1,
-        String::from("David edited"),
-        String::from("Biagiola edited"),
-        String::from("Deivi edited")
-    );
-    println!("{:#?}", user_table.get(&1));
-
-    // create avatars
-    avatar_table.insert(
-        1,
-        String::from("Gandalf"),
-        AvatarType::Magician
-    );
-    avatar_table.insert(
-        2,
-        String::from("Frodo"),
-        AvatarType::Hobbit
-    );
-
-    // create user avatar
-    user_avatar_table.insert(
-        1,
-        user_table.get(&1).unwrap().id,
-        avatar_table.get(&2).unwrap().id,
-        20
-    );
+fn tbl_insert_avatar(
+    avatar_tbl: &mut HashMap<u32, Avatar>,
+    id: u32,
+    avatar: Avatar
+) {
+    avatar_tbl.insert(id, avatar);
 }
 
-// TODO: make CRUD operations for the tables
+fn read_user_identification(type_name: &str) -> String {
+    println!("Please. Enter your {type_name} name");
+    let mut user_input: String = String::new();
 
-// Access HasMap data: safe mode
-// if let Some(avatar) = tbl_avatar.get(&1) {
-//     println!("Avatar name: {}", avatar.name);
-// }
-// Access HasMap data: unsafe mode
-// println!("Avatar name: {}", tbl_avatar.get(&1).unwrap().name);
+    if let Err(message) = stdin().read_line(&mut user_input) {
+        eprintln!("There was an error with the user input. {message:?}");
+        process::exit(1)
+    }
+
+    return user_input.trim().to_string()
+}
+
+fn main() {
+    let mut input_first_name: String = read_user_identification("first");
+    let mut input_last_name: String = read_user_identification("last");
+    let mut input_nick_name: String = read_user_identification("nick");
+
+    // create user
+    let david_user: User = User {
+        id: 1,
+        first_name: String::from("David"),
+        last_name: String::from("Biagiola"),
+        nick_name: String::from("Deivi")
+    };
+    // create avatar
+    let gandalf_avatar: Avatar = Avatar {
+        id: 1,
+        name: String::from("Gandalf"),
+        avatar_type: AvatarType:: Magician
+    };
+    let frodo_avatar: Avatar = Avatar {
+        id: gandalf_avatar.id + 1,
+        name: String::from("Frodo"),
+        avatar_type: AvatarType::Hobbit
+    };
+    // fake save
+    let mut avatar_tbl: HashMap<u32, Avatar> = HashMap::new();
+    tbl_insert_avatar(&mut avatar_tbl, gandalf_avatar.id, gandalf_avatar);
+    tbl_insert_avatar(&mut avatar_tbl, frodo_avatar.id, frodo_avatar);
+    // println!("Insertion: {:#?}", avatar_tbl.get(&1));
+
+    // Access HasMap data: safe mode
+    // if let Some(avatar) = avatar_tbl.get(&1) {
+    //     println!("Avatar name: {}", avatar.name);
+    // }
+    // Access HasMap data: unsafe mode
+    // println!("Avatar name: {}", avatar_tbl.get(&1).unwrap().name);
+
+    // create userAvatar: user -> avatar
+    let david_frodo_avatar: UserAvatar = UserAvatar {
+        id: 1,
+        user_id: david_user.id,
+        avatar_id: avatar_tbl.get(&2).unwrap().id,
+        level: 20
+    };
+    println!("{:#?}", david_frodo_avatar);
+}
+
+// TODO: make more modular fn's for saving values into the hashMap and others.
