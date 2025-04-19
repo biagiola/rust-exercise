@@ -1,6 +1,7 @@
 use std::collections::HashMap; // for our pseudo tables
 use std::process;
 use std::io::stdin;
+use std::io::Error;
 use models::{User, Avatar, AvatarType, UserAvatar}; // Bring structs/enum
 mod models; // Import our pseudo models
 
@@ -13,29 +14,34 @@ fn tbl_insert_avatar(
 }
 
 fn read_user_identification(type_name: &str) -> String {
-    println!("Please. Enter your {type_name} name");
     let mut user_input: String = String::new();
+    let mut i: i32 = 0;
 
-    if let Err(message) = stdin().read_line(&mut user_input) {
-        eprintln!("There was an error with the user input. {message:?}");
-        process::exit(1)
+    loop {
+        println!("Please. Enter your {type_name} name");
+        
+        if let Err(message) = stdin().read_line(&mut user_input) {
+            eprintln!("There was an error with the user input. {message:?}");
+        } else {
+            break;
+        };
     }
-
-    return user_input.trim().to_string()
+    user_input.trim().to_string()
 }
 
 fn main() {
-    let mut input_first_name: String = read_user_identification("first");
-    let mut input_last_name: String = read_user_identification("last");
-    let mut input_nick_name: String = read_user_identification("nick");
+    let input_first_name: String = read_user_identification("first");
+    let input_last_name: String = read_user_identification("last");
+    let input_nick_name: String = read_user_identification("nick");
 
     // create user
     let david_user: User = User {
         id: 1,
-        first_name: String::from("David"),
-        last_name: String::from("Biagiola"),
-        nick_name: String::from("Deivi")
+        first_name: input_first_name,
+        last_name: input_last_name,
+        nick_name: input_nick_name
     };
+    println!("{david_user:?}");
     // create avatar
     let gandalf_avatar: Avatar = Avatar {
         id: 1,
